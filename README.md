@@ -6,7 +6,7 @@ Uses the [aws-sdk](https://www.npmjs.com/package/aws-sdk).
 
 ## Installation
 
-First ensure node/npm is installed [node](https://nodejs.org/en/download/). Verify with checking version:
+First ensure node/npm is installed [node](https://nodejs.org/en/download/). Verify by checking version:
 
 ```bash
 node --version
