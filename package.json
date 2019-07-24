@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {},
-  "author": "",
+  "author": "Adam Nicholas",
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.498.0",
