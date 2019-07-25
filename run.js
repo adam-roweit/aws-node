@@ -29,7 +29,7 @@ getUserGroups()
 
     groups.forEach(group => {
       promises.push(
-        getGroupCommands(group.GroupName)
+        getAllUsers(group.GroupName)
         .then(commands => {
           return commands;
         })
@@ -65,45 +65,75 @@ getUserGroups()
   .catch(err => console.log(err, err.stack));
 
 function getUserGroups() {
-  let groupsReq = cognitoidentityserviceprovider.listGroups({ UserPoolId, Limit: 60 }, () => {});
+  let concatData = [];
 
-  let promise = new Promise((resolve, reject) => {
-    return groupsReq.on('success', response => {
-        let userGroups = response.data.Groups;
-        resolve(userGroups);
-      })
-      .on('error', error => {
-        reject(error);
-      });
+  let params = {
+    UserPoolId,
+    Limit: 60
+  };
+
+  function recursiveUserGroups(params, resolve, reject) {
+    cognitoidentityserviceprovider.listGroups(params, (err, data) => {
+      if (err) {
+        console.log(err, err.stack);
+        return reject(err);
+      } 
+
+      concatData = concatData.concat(data.Groups);
+      
+      if (!data.NextToken) {
+        return resolve(concatData);
+      } else {
+        params.token = data.NextToken;
+        recursiveUserGroups(params, resolve, reject); 
+      }
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    recursiveUserGroups(params, resolve, reject);
   });
-
-  return promise;
 };
 
-function getGroupCommands(GroupName) {
+function getAllUsers(GroupName) {
+  let users = [];
+
   let params = {
     GroupName,
     UserPoolId,
     Limit: 60
   };
-  let usersReq = cognitoidentityserviceprovider.listUsersInGroup(params, () => {});
 
-  let promise = new Promise((resolve, reject) => {
-    return usersReq.on('success', response => {
-        let users = response.data.Users;
-        let commands = [];
+  function recursiveUsersInGroup(params, resolve, reject) {
+    let commands = [];
 
-        users.forEach(user => {
-          let command = `call aws cognito-idp admin-add-user-to-group --user-pool-id ${UserPoolId} --group-name ${GroupName} --username ${user.Username}`;
-          commands.push(command);
-        });
+    cognitoidentityserviceprovider.listUsersInGroup(params, (err, data) => {
+      console.log(data);
 
-        resolve(commands);
-      })
-      .on('error', error => {
-        reject(error);
-      })
+      if (err) {
+        console.log(err, err.stack);
+        return reject(err);
+      }
+
+      users = users.concat(data.Users);
+  
+      if (!data.NextToken) {
+        for (let i = 0; i < users.length; i++) {
+          const user = users[i];
+          let command = `call aws cognito-idp admin-add-user-to-group --user-pool-id ${UserPoolId} --group-name ${GroupName} --username ${user.Attributes[0].Value}`;
+
+          commands.push(command)
+        }
+
+        return resolve(commands);
+      } else {
+        params.NextToken = data.NextToken;
+        recursiveUsersInGroup(params, resolve, reject); 
+      }
+    });
+  }
+  
+  return new Promise((resolve, reject) => {
+    recursiveUsersInGroup(params, resolve, reject);
   });
-
-  return promise;
 };
