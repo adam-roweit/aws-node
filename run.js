@@ -118,7 +118,7 @@ function getAllUsers(GroupName) {
       if (!data.NextToken) {
         for (let i = 0; i < users.length; i++) {
           const user = users[i];
-          let command = `call aws cognito-idp admin-add-user-to-group --user-pool-id ${UserPoolId} --group-name ${GroupName} --username ${user.Attributes[0].Value}`;
+          let command = `call aws cognito-idp admin-add-user-to-group --user-pool-id ${UserPoolId} --group-name ${GroupName} --username ${user.Username}`;
 
           commands.push(command)
         }
