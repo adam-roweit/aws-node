@@ -7,7 +7,7 @@ if(!argv.userPoolId) console.error('userPoolId must be set!');
 const UserPoolId = argv.userPoolId;
 const region = argv.region || 'eu-west-2';
 const profile = argv.profile || 'default';
-const fileName = argv.filename + '.bat' || 'script.bat';
+const fileName = argv.filename || 'script.bat';
 
 let credentials = new AWS.SharedIniFileCredentials({
   profile
@@ -65,7 +65,7 @@ getUserGroups()
   .catch(err => console.log(err, err.stack));
 
 function getUserGroups() {
-  let groupsReq = cognitoidentityserviceprovider.listGroups({ UserPoolId }, () => {});
+  let groupsReq = cognitoidentityserviceprovider.listGroups({ UserPoolId, Limit: 60 }, () => {});
 
   let promise = new Promise((resolve, reject) => {
     return groupsReq.on('success', response => {
@@ -83,7 +83,8 @@ function getUserGroups() {
 function getGroupCommands(GroupName) {
   let params = {
     GroupName,
-    UserPoolId
+    UserPoolId,
+    Limit: 60
   };
   let usersReq = cognitoidentityserviceprovider.listUsersInGroup(params, () => {});
 
