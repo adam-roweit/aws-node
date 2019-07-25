@@ -57,7 +57,6 @@ setTimeout(() => {}, 5000);
     }
 
     if (found) {
-      let count = 0;
       for (let index = 0; index < userCount; index++) {
         let email = generateEmail(30);
         let createUserRes = await createUser(UserPoolId, email);
