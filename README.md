@@ -29,3 +29,12 @@ node run
   --profile       # Defaults to 'default'
   --filename      # Defaults to script.bat
 ```
+
+```bash
+node users 
+  --userPoolId    # Required 
+  --groupName     # Required
+  --region        # Defaults to eu-west-2
+  --profile       # Defaults to 'default'
+  --userCount     # Defaults to 15
+```

@@ -108,8 +108,6 @@ function getAllUsers(GroupName) {
     let commands = [];
 
     cognitoidentityserviceprovider.listUsersInGroup(params, (err, data) => {
-      console.log(data);
-
       if (err) {
         console.log(err, err.stack);
         return reject(err);
